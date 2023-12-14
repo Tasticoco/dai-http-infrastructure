@@ -12,5 +12,5 @@ COPY  website/troweld-html /var/www/html
 # Expose port 80
 EXPOSE 80
 
-# Run the Nginx service
-CMD ["nginx", "-g", "daemon off;"]
+## Run the Nginx service
+#CMD ["nginx", "-g", "daemon off;"]
