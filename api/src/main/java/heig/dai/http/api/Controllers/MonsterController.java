@@ -11,8 +11,8 @@ import java.util.HashMap;
 
 public class MonsterController{
 
-    private final ConcurrentHashMap<Integer, Monster> monsters = new ConcurrentHashMap<>();
-    int nextId = 0;
+    private final ConcurrentHashMap<Integer, Monster> monsters = new ConcurrentHashMap<Integer, Monster>();
+    private int nextId = 0;
     public MonsterController(){
         String descBarrioth ="The snow-white flying wyvern with huge tusks found in the frozen tundra." +
                              " It uses its forelegs and tail to traverse ice with ease.";
@@ -25,18 +25,23 @@ public class MonsterController{
         resistanceBarrioth.put(ElementType.ICE, 4);
         resistanceBarrioth.put(ElementType.DRAGON, 1);
 
-        monsters.put(nextId++,(new Monster("Barioth", descBarrioth, MonsterType.FLYING_WYVERN, ElementType.ICE,
-                weaknessBarrioth, resistanceBarrioth, 19200)));
+        monsters.put(nextId++, new Monster("Barioth", descBarrioth, MonsterType.FLYING_WYVERN, ElementType.ICE,
+                weaknessBarrioth, resistanceBarrioth, 19200));
     }
 
     public void getById(Context ctx){
+        int id = recoverId(ctx);
+        if(id >= nextId){
+            ctx.status(404);
+            return;
+        }
         ctx.json(monsters.get(recoverId(ctx)));
     }
 
     public void getByName(Context ctx){
-        String name = ctx.pathParam("name");
+        String name = ctx.pathParam("name").toLowerCase();
         for (Map.Entry<Integer, Monster> monster : monsters.entrySet()) {
-            if(monster.getValue().name.equals(name)){
+            if(monster.getValue().name.toLowerCase().equals(name)){
                 ctx.json(monster);
                 return;
             }

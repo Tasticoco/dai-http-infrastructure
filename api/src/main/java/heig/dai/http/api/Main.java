@@ -13,7 +13,8 @@ public class Main {
         app.post("/monsters", monsterController::create);
         app.put("/monsters/{id}", monsterController::update);
         app.delete("/monsters/{id}", monsterController::delete);
-        app.get("/monsters/{id}/weak", monsterController::getWeakness);
+        app.get("/monsters/{id}/weakness", monsterController::getWeakness);
         app.put("/monsters/{id}/hunted", monsterController::updateStats);
+        app.get("/monsters/name/{name}", monsterController::getByName);
     }
 }

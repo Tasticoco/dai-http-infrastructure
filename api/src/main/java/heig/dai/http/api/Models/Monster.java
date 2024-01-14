@@ -17,9 +17,11 @@ public class Monster {
     public int smallestEncounter;
     public int nbHunted;
 
+    public Monster(){}
+
     public Monster(String name, String description, MonsterType species, ElementType element,
                    Map<ElementType, Integer> weakness, Map<ElementType, Integer> Resistance, int maxHP){
-        new Monster(name, description, species, element, weakness, Resistance, maxHP, 0, 0, 0, 0);
+        this(name, description, species, element, weakness, Resistance, maxHP, 0, 0, 0, 0);
     }
 
     public Monster(String name, String description, MonsterType species, ElementType element,
