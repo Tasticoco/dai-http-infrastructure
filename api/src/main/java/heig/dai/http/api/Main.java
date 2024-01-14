@@ -9,8 +9,8 @@ public class Main {
         MonsterController monsterController = new MonsterController();
 
         app.get("/monsters/{id}", monsterController::getById);
-        app.get("/monsters/", monsterController::getAll);
-        app.post("/monsters/", monsterController::create);
+        app.get("/monsters", monsterController::getAll);
+        app.post("/monsters", monsterController::create);
         app.put("/monsters/{id}", monsterController::update);
         app.delete("/monsters/{id}", monsterController::delete);
         app.get("/monsters/{id}/weak", monsterController::getWeakness);

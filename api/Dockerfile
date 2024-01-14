@@ -1,5 +1,5 @@
-FROM eclipse-temurin:11-alpine
-COPY target/apiTropBien.jar /app.jar
+FROM eclipse-temurin:17-alpine
+COPY target/api-monsters.jar /api-monsters.jar
 # This is the port that your javalin application will listen on
 EXPOSE 7000
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/api-monsters.jar"]
