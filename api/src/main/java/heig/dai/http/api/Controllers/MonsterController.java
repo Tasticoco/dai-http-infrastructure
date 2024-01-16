@@ -33,9 +33,9 @@ public class MonsterController{
         int id = recoverId(ctx);
         if(id >= nextId){
             ctx.status(404);
-            return;
+        }else {
+            ctx.json(monsters.get(recoverId(ctx)));
         }
-        ctx.json(monsters.get(recoverId(ctx)));
     }
 
     public void getByName(Context ctx){
@@ -54,14 +54,24 @@ public class MonsterController{
     }
 
     public void delete(Context ctx){
-        monsters.remove(recoverId(ctx));
-        ctx.status(204);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            monsters.remove(recoverId(ctx));
+            ctx.status(204);
+        }else{
+            ctx.status(404);
+        }
     }
 
     public void update(Context ctx){
         Monster monster = ctx.bodyAsClass(Monster.class);
-        monsters.put(recoverId(ctx), monster);
-        ctx.status(200);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            monsters.put(recoverId(ctx), monster);
+            ctx.status(200);
+        }else{
+            ctx.status(404);
+        }
     }
 
     public void create(Context ctx){
@@ -70,14 +80,23 @@ public class MonsterController{
     }
 
     public void getWeakness(Context ctx){
-        Monster monster = monsters.get(recoverId(ctx));
-        ctx.json(monster.weakness);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            ctx.json(monsters.get(recoverId(ctx)).weakness);
+        }else{
+            ctx.status(404);
+        }
     }
 
+
     public void updateStats(Context ctx){
-        int size = Integer.parseInt(ctx.pathParam("size"));
-        Monster monster = monsters.get(recoverId(ctx));
-        monster.updateStats(size);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            int size = Integer.parseInt(ctx.body().replaceAll("[\\D]", ""));
+            monsters.get(id).updateStats(size);
+        }else{
+            ctx.status(404);
+        }
     }
 
 
