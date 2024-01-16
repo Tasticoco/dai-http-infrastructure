@@ -1,0 +1,17 @@
+meta {
+  name: huntedMonster
+  type: http
+  seq: 8
+}
+
+put {
+  url: http://localhost/api/monsters/0/hunted
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "size": 5984
+  }
+}
