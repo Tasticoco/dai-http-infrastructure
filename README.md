@@ -84,7 +84,7 @@ Response example :
 ]
 ```
 
-#### GET /monsters/{id}
+#### GET api/monsters/{id}
 
 Fetches a monster by its ID.
 
@@ -94,7 +94,7 @@ id - The ID of the monster.
 
 Response is similar to getAllMonsters.
 
-#### GET /monsters/name/{name}
+#### GET api/monsters/name/{name}
 
 Fetches a monster by its name.
 
@@ -106,7 +106,7 @@ Response:
 Same as GET /monsters/{id}
 
 
-#### DELETE /monsters/{id}
+#### DELETE api/monsters/{id}
 
 
 Deletes a monster by its ID.
@@ -119,7 +119,7 @@ Response:
 HTTP 204 No Content upon successful deletion.
 
 
-#### PUT /monsters/{id}
+#### PUT api/monsters/{id}
 
 Updates a monster by its ID.
 
@@ -133,7 +133,7 @@ Response:
 HTTP 200 OK upon successful update.
 
 
-#### POST /monsters
+#### POST api/monsters
 
 Creates a new monster.
 
@@ -143,7 +143,7 @@ Response:
 HTTP 201 Created upon successful creation.
 
 
-#### GET /monsters/{id}/weakness
+#### GET api/monsters/{id}/weakness
 
 Fetches the weaknesses of a monster by its ID.
 
@@ -161,7 +161,7 @@ Response:
 }
 ```
 
-#### POST /monsters/{id}/hunted
+#### POST api/monsters/{id}/hunted
 
 Updates the stats of a monster by its ID.
 
@@ -173,5 +173,5 @@ size - The new size of the monster.
 Response:
 HTTP 200 OK upon successful update.
 
-TODO documentation
+### Traeff
 

@@ -2,10 +2,12 @@ version: '3'
 services:
   api:
     build: ./api
+
     expose:
       - "7000"
     labels:
-      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)"
 
   nginx:
     build: ./nginx_server
@@ -16,7 +18,7 @@ services:
       - ./nginx_server/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./nginx_server/website/troweld-html:/var/www/html
     labels:
-      - traefik.http.routers.nginx.rule=Host(`localhost`)
+      - "traefik.http.routers.nginx.rule=Host(`localhost`)"
 
 
   reverse-proxy:
@@ -27,3 +29,6 @@ services:
     ports:
       - "80:80"
       - "8080:8080"
+      -
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
