@@ -44,6 +44,9 @@ body {
 	line-height:21px;
 	color:#113e5d;
 	background-color:#9ba0a3;
+	background-image: url("../images/bg.gif");
+	background-repeat: repeat;
+	background-size: 300px;
 	font-family:Georgia, "Times New Roman", Times, serif;
 }
 
@@ -141,6 +144,8 @@ h6 {
 
 #header .top_banner{
 	background:url(../images/header.jpg) no-repeat left top;
+	background-size: 1000px;
+
 	height:175px;
 	padding:75px 95px 0 295px;
 	border:#496066 solid 1px;

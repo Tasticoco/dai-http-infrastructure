@@ -15,7 +15,7 @@
 
     <div class="top_banner">
       <h1>API Monster Hunter</h1>
-      <p>Dai is so cool :-3</p>
+      <p>DAI is so cool :-3</p>
     </div>
  
   </div>
@@ -37,6 +37,7 @@
         </div>
       </div>
 
+
     </div>
 
     <div class="right_section">
@@ -46,9 +47,9 @@
         <hr>
         <h1>Monster API Client</h1>
         <p> The requested monster : </p>
+        <br>
         <div id="monster"></div>
-
-
+        <br>
 
         <label for="id">Monster ID:</label>
         <input type="text" id="id">
@@ -122,7 +123,7 @@
 
     <div class="clear"></div>
 
-    <div id="footer">Made by your graceful students</a><br>
+    <div id="footer">Made by your graceful students - Edwin Haeffner and Arthur Junod</a><br>
     
     </div>
 	
@@ -167,7 +168,7 @@
               const monsterDiv = document.getElementById('monster');
               monsterDiv.innerHTML = `<h3>${monster.name}</h3>
                               <p>${monster.description}</p>
-                              <p>Type: ${monster.type}</p>
+                              <p>Species: ${monster.species}</p>
                               <p>Element: ${monster.element}</p>`;
             })
             .catch(error => {
@@ -179,28 +180,36 @@
 
 
   function createMonster() {
-    const name = document.getElementById('monster-name');
-    const description = document.getElementById('monster-description');
-    const species = document.getElementById('monster-species');
-    const element = document.getElementById('monster-element');
-    const maxHealth = document.getElementById('monster-maxHealth');
+    const name = document.getElementById('monster-name').value;
+    const description = document.getElementById('monster-descr').value; // Corrected ID
+    const species = document.getElementById('monster-species').value;
+    const element = document.getElementById('monster-element').value;
+    const maxHealth = parseInt(document.getElementById('monster-maxHealth').value);
+    const weaknessType = document.getElementById('weakness-type').value;
+    const weaknessLevel = parseInt(document.getElementById('weakness-level').value);
+    const resistanceType = document.getElementById('resistance-type').value;
+    const resistanceLevel = parseInt(document.getElementById('resistance-level').value);
 
-    let monsterCreateStatus;
+    const monsterCreateStatus = document.getElementById('monsterCreateStatus');
 
     const monster = {
-      name: name.value,
-      description: description.value,
-      species: species.value,
-      element: element.value,
+      name: name,
+      description: description,
+      species: species,
+      element: element,
       weakness: {
-        [document.getElementById('weakness-type').value]: parseInt(document.getElementById('weakness-level').value)
+        [weaknessType]: weaknessLevel
       },
       resistance: {
-        [document.getElementById('resistance-type').value]: parseInt(document.getElementById('resistance-level').value)
+        [resistanceType]: resistanceLevel
       },
-      maxHealth: maxHealth.value
+      maxHP: maxHealth,
+      investigationXP: 0,
+      biggestEncounter: 0,
+      smallestEncounter: 0,
+      nbHunted: 0,
+      investigationLvl: 0
     };
-
 
     fetch('/api/monsters', {
       method: 'POST',
@@ -211,28 +220,28 @@
     })
             .then(response => {
               if (!response.ok) {
-
-                monsterCreateStatus.innerHTML = 'Failed to create monster';
+                throw new Error('Failed to create monster');
               }
-              return response.json(); // Assuming the server returns the created monster
+              return response.json();
             })
             .then(newMonster => {
               console.log('Monster created successfully', newMonster);
               monsterCreateStatus.innerHTML = 'Monster created successfully';
-              // Optionally refresh the monster list
-              fetchAllMonsters();
-              // Clear the input fields
-              name.value = '';
-              description.value = '';
-              species.value = '';
-              element.value = '';
-              maxHealth.value = '';
 
+              // Clear the input fields
+              document.getElementById('monster-name').value = '';
+              document.getElementById('monster-descr').value = '';
+              document.getElementById('monster-species').value = 'BIRD_WYVERN';
+              document.getElementById('monster-element').value = 'FIRE';
+              document.getElementById('monster-maxHealth').value = '';
             })
             .catch(error => {
               console.error(error);
+              monsterCreateStatus.innerHTML = error.message;
             });
   }
+
+
 
   document.addEventListener('DOMContentLoaded', fetchAllMonsters);
 </script>
