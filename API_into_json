@@ -1,2 +1,0 @@
-# !/bin/bash
-curl "https://mhw-db.com/weapons" | python -m json.tool >> weapons.json
