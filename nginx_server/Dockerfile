@@ -7,7 +7,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 VOLUME /var/www/html
 
 # Copy the website files to the container
-COPY  website/troweld-html /var/www/html
+COPY  website/MHApi /var/www/html
 
 # Expose port 80
 EXPOSE 80
