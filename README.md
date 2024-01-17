@@ -251,12 +251,15 @@ services:
 
 A reverse proxy like Traefik improves security in several ways (as we've seen in our amazing DAI lessons) :
 
-TODO : Actually give reasons why it's good :-) 
+- Only the reverse proxy is exposed to the internet, so it's the only service that can be attacked from the outside.
+- The reverse proxy can be configured to only allow certain requests to pass through to the internal services.
+- We can manage secure HTTPS connections in the reverse proxy and the internal services don't need to worry about it.
+
 
 
 #### Accessing and Understanding the Traefik Dashboard:
 
-To access the Traefik dashboard, you can navigate to http://localhost:8080 in your web browser. 
+To access the Traefik dashboard, you can navigate to http://localhost:8080/dashboard in your web browser. 
 Since `--api.insecure=true` is set, it is accessible without HTTPS or authentication and for the purpose of this
 lab, we don't think it's very useful to make it secure as we only launch this docker on the loopback network.
 
@@ -284,11 +287,54 @@ By adding :
 Under the label section of our service `api`, Traefik will use the "monsterious_cookie" to ensure that additional requests 
 from a client are routed to the same backend server that handled the initial request !
 
+We can easily verify that by checking the cookies in our browser, we can see that the cookie is set to the value of the
+container id of the api service.
+
 ### HTTPS :
 
 We put the key and the certificate in the `https` folder of this project. 
 We generated the key with this command : 
 `openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=Vaud/L=YverdonLesBains/O=HEIGVD/OU=TIC/CN=DAIhttpInfrastructurMonsterHunterAPI"`
+
+We then added the following lines to our `docker-compose.yml` file under the `nginx` and `api` service : 
+```yaml
+      - "traefik.http.routers.api.entrypoints=https"
+      - "traefik.http.routers.api.tls=true"
+```
+And we also exposed the port 443 to be able to access the https service :
+```yaml
+    ports:
+      - "443:443"
+```
+
+We finally added a new file, `traefik.yml` to our project with the following content : 
+```yaml
+# traefik.yaml
+
+providers:
+  docker: {}
+
+# Configure the 2 entry points used: HTTP and HTTPS
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+
+# Enable the HTTPS protocol with a certificate
+tls:
+  certificates:
+    - certFile: "/etc/traefik/certificates/cert.pem"
+    - keyFile: "/etc/traefik/certificates/key.pem"
+
+# Configure the Traefik API
+api:
+  dashboard: true
+  insecure: true
+```
+
+And now we can access our API and our website with HTTPS !
+
 
 ### Management UI
 
@@ -315,6 +361,13 @@ volumes:
 Then from Portainer you can connect to the local docker environment to access all the containers, images, etc. 
 of your local docker environment. You can access the dashboard with http://localhost:9443. You may have to create
 your admin user the first time you launch Portainer or if you tear down the volumes.
+
+### Integration of the API in the static website
+
+In `nginx_server/website/MHApi`, we've made a simple HTML page that uses JavaScript to fetch the API
+and display the monsters in the memory directly on the page. It can also add a monster to the API. As we don't have a database, the data will be 
+lost when the container is stopped. Finally, we can search and show a monster by its id.
+
 
 
 
