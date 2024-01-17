@@ -290,8 +290,31 @@ We put the key and the certificate in the `https` folder of this project.
 We generated the key with this command : 
 `openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=Vaud/L=YverdonLesBains/O=HEIGVD/OU=TIC/CN=DAIhttpInfrastructurMonsterHunterAPI"`
 
+### Management UI
 
+We added Portainer to the docker compose. Which is a webapp that allow us to manipulate our containers from its UI.
 
+```docker-compose
+version: '3'
+services:
+
+//... other services
+
+  portainer:
+    image: portainer/portainer-ce
+    ports:
+      - "9443:9443"
+    volumes:
+      - data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  data:
+```
+Then from Portainer you can connect to the local docker environment to access all the containers, images, etc. 
+of your local docker environment. You can access the dashboard with http://localhost:9443. You may have to create
+your admin user the first time you launch Portainer or if you tear down the volumes.
 
 
 
