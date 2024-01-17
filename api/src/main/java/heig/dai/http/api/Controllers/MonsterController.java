@@ -14,19 +14,19 @@ public class MonsterController{
     private final ConcurrentHashMap<Integer, Monster> monsters = new ConcurrentHashMap<Integer, Monster>();
     private int nextId = 0;
     public MonsterController(){
-        String descBarrioth ="The snow-white flying wyvern with huge tusks found in the frozen tundra." +
+        String descBarioth ="The snow-white flying wyvern with huge tusks found in the frozen tundra." +
                              " It uses its forelegs and tail to traverse ice with ease.";
-        Map<ElementType,Integer> weaknessBarrioth = new HashMap<>();
-        weaknessBarrioth.put(ElementType.FIRE, 3);
-        weaknessBarrioth.put(ElementType.THUNDER, 2);
+        Map<ElementType,Integer> weaknessBarioth = new HashMap<>();
+        weaknessBarioth.put(ElementType.FIRE, 3);
+        weaknessBarioth.put(ElementType.THUNDER, 2);
 
-        Map<ElementType,Integer> resistanceBarrioth = new HashMap<>();
-        resistanceBarrioth.put(ElementType.WATER, 4);
-        resistanceBarrioth.put(ElementType.ICE, 4);
-        resistanceBarrioth.put(ElementType.DRAGON, 1);
+        Map<ElementType,Integer> resistanceBarioth = new HashMap<>();
+        resistanceBarioth.put(ElementType.WATER, 4);
+        resistanceBarioth.put(ElementType.ICE, 4);
+        resistanceBarioth.put(ElementType.DRAGON, 1);
 
-        monsters.put(nextId++, new Monster("Barioth", descBarrioth, MonsterType.FLYING_WYVERN, ElementType.ICE,
-                weaknessBarrioth, resistanceBarrioth, 19200));
+        monsters.put(nextId++, new Monster("Barioth", descBarioth, MonsterType.FLYING_WYVERN, ElementType.ICE,
+                weaknessBarioth, resistanceBarioth, 19200));
     }
 
     public void getById(Context ctx){
