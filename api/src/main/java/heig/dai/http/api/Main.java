@@ -8,13 +8,13 @@ public class Main {
 
         MonsterController monsterController = new MonsterController();
 
-        app.get("/monsters/{id}", monsterController::getById);
-        app.get("/monsters", monsterController::getAll);
-        app.post("/monsters", monsterController::create);
-        app.put("/monsters/{id}", monsterController::update);
-        app.delete("/monsters/{id}", monsterController::delete);
-        app.get("/monsters/{id}/weakness", monsterController::getWeakness);
-        app.put("/monsters/{id}/hunted", monsterController::updateStats);
-        app.get("/monsters/name/{name}", monsterController::getByName);
+        app.get("/api/monsters/{id}", monsterController::getById);
+        app.get("/api/monsters", monsterController::getAll);
+        app.post("/api/monsters", monsterController::create);
+        app.put("/api/monsters/{id}", monsterController::update);
+        app.delete("/api/monsters/{id}", monsterController::delete);
+        app.get("/api/monsters/{id}/weakness", monsterController::getWeakness);
+        app.put("/api/monsters/{id}/hunted", monsterController::updateStats);
+        app.get("/api/monsters/name/{name}", monsterController::getByName);
     }
 }

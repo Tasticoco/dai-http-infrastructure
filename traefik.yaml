@@ -1,0 +1,20 @@
+# traefik.yaml
+
+providers:
+  docker: {}
+
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+
+tls:
+  certificates:
+    - certFile: "/etc/traefik/certificates/cert.pem"
+    - keyFile: "/etc/traefik/certificates/key.pem"
+
+# Configure the Traefik API
+api:
+  dashboard: true
+  insecure: true

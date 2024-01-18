@@ -14,28 +14,28 @@ public class MonsterController{
     private final ConcurrentHashMap<Integer, Monster> monsters = new ConcurrentHashMap<Integer, Monster>();
     private int nextId = 0;
     public MonsterController(){
-        String descBarrioth ="The snow-white flying wyvern with huge tusks found in the frozen tundra." +
+        String descBarioth ="The snow-white flying wyvern with huge tusks found in the frozen tundra." +
                              " It uses its forelegs and tail to traverse ice with ease.";
-        Map<ElementType,Integer> weaknessBarrioth = new HashMap<>();
-        weaknessBarrioth.put(ElementType.FIRE, 3);
-        weaknessBarrioth.put(ElementType.THUNDER, 2);
+        Map<ElementType,Integer> weaknessBarioth = new HashMap<>();
+        weaknessBarioth.put(ElementType.FIRE, 3);
+        weaknessBarioth.put(ElementType.THUNDER, 2);
 
-        Map<ElementType,Integer> resistanceBarrioth = new HashMap<>();
-        resistanceBarrioth.put(ElementType.WATER, 4);
-        resistanceBarrioth.put(ElementType.ICE, 4);
-        resistanceBarrioth.put(ElementType.DRAGON, 1);
+        Map<ElementType,Integer> resistanceBarioth = new HashMap<>();
+        resistanceBarioth.put(ElementType.WATER, 4);
+        resistanceBarioth.put(ElementType.ICE, 4);
+        resistanceBarioth.put(ElementType.DRAGON, 1);
 
-        monsters.put(nextId++, new Monster("Barioth", descBarrioth, MonsterType.FLYING_WYVERN, ElementType.ICE,
-                weaknessBarrioth, resistanceBarrioth, 19200));
+        monsters.put(nextId++, new Monster("Barioth", descBarioth, MonsterType.FLYING_WYVERN, ElementType.ICE,
+                weaknessBarioth, resistanceBarioth, 19200));
     }
 
     public void getById(Context ctx){
         int id = recoverId(ctx);
         if(id >= nextId){
             ctx.status(404);
-            return;
+        }else {
+            ctx.json(monsters.get(recoverId(ctx)));
         }
-        ctx.json(monsters.get(recoverId(ctx)));
     }
 
     public void getByName(Context ctx){
@@ -54,14 +54,24 @@ public class MonsterController{
     }
 
     public void delete(Context ctx){
-        monsters.remove(recoverId(ctx));
-        ctx.status(204);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            monsters.remove(recoverId(ctx));
+            ctx.status(204);
+        }else{
+            ctx.status(404);
+        }
     }
 
     public void update(Context ctx){
         Monster monster = ctx.bodyAsClass(Monster.class);
-        monsters.put(recoverId(ctx), monster);
-        ctx.status(200);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            monsters.put(recoverId(ctx), monster);
+            ctx.status(200);
+        }else{
+            ctx.status(404);
+        }
     }
 
     public void create(Context ctx){
@@ -70,14 +80,23 @@ public class MonsterController{
     }
 
     public void getWeakness(Context ctx){
-        Monster monster = monsters.get(recoverId(ctx));
-        ctx.json(monster.weakness);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            ctx.json(monsters.get(recoverId(ctx)).weakness);
+        }else{
+            ctx.status(404);
+        }
     }
 
+
     public void updateStats(Context ctx){
-        int size = Integer.parseInt(ctx.pathParam("size"));
-        Monster monster = monsters.get(recoverId(ctx));
-        monster.updateStats(size);
+        int id = recoverId(ctx);
+        if(id < nextId) {
+            int size = Integer.parseInt(ctx.body().replaceAll("[\\D]", ""));
+            monsters.get(id).updateStats(size);
+        }else{
+            ctx.status(404);
+        }
     }
 
 

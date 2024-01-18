@@ -1,24 +1,29 @@
 version: '3'
 services:
+  api:
+    build: ./api
+    labels:
+      - "traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.services.api.loadbalancer.sticky.cookie=true"
+      - "traefik.http.services.api.loadbalancer.sticky.cookie.name=monsterious_cookie"
+      - "traefik.http.routers.api.entrypoints=https"
+      - "traefik.http.routers.api.tls=true"
+
+    deploy:
+      replicas: 2
 
   nginx:
     build: ./nginx_server
     image: nginx:stable
-    expose:
-      - "8080"
     volumes:
       - ./nginx_server/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx_server/website/troweld-html:/var/www/html
+      - ./nginx_server/website/MHApi:/var/www/html
     labels:
-      - traefik.http.routers.my-container.rule=Host(`localhost`)
-
-  api:
-    build: ./api
-    expose:
-      - "7000"
-    labels:
-      - traefik.http.routers.my-container.rule=Host(`localhost/api`)
-
+      - "traefik.http.routers.nginx.rule=Host(`localhost`)"
+      - "traefik.http.routers.nginx.entrypoints=https"
+      - "traefik.http.routers.nginx.tls=true"
+    deploy:
+      replicas: 2
 
   reverse-proxy:
     image: traefik:v2.10
@@ -26,7 +31,23 @@ services:
              --api.dashboard=true
              --api.insecure=true
     ports:
+      - "8080:8080"
       - "80:80"
-      - "7080:8080"
+      - "443:443"
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./https:/etc/traefik/certificates
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+
+  portainer:
+    image: portainer/portainer-ce
+    ports:
+      - "9443:9443"
+    volumes:
+      - data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  data:

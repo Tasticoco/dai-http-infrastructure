@@ -1,0 +1,35 @@
+meta {
+  name: createMonster
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://localhost/api/monsters
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Bazelgeuse",
+    "description": "A nefarious flying wyvern that travels the New World in search of prey. It scatters explosive scales over a wide area to prey on whatever gets caught in the blast.",
+    "species": "FLYING_WYVERN",
+    "element": "FIRE",
+    "weakness": {
+      "THUNDER": 3,
+      "DRAGON": 2,
+      "ICE": 2,
+      "WATER": 1
+    },
+    "resistance": {
+      "FIRE": 4
+    },
+    "maxHP": 9191,
+    "investigationXP": 0,
+    "biggestEncounter": 0,
+    "smallestEncounter": 0,
+    "nbHunted": 0,
+    "investigationLvl": 0
+  }
+}

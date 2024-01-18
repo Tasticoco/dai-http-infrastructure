@@ -1,0 +1,35 @@
+meta {
+  name: changeMonster
+  type: http
+  seq: 6
+}
+
+put {
+  url: https://localhost/api/monsters/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Namielle",
+    "description": "An Elder Dragon said to be able to command water and use it as a shield. Though very few sightings have ever been reported, they mention 'exploding water' and 'bright glowing lights.' Its existence remains shrouded in mystery.",
+    "species": "ELDER_DRAGON",
+    "element": "WATER",
+    "weakness": {
+      "FIRE": 3,
+      "DRAGON": 2
+    },
+    "resistance": {
+      "WATER": 4,
+      "THUNDER": 4,
+      "ICE": 1
+    },
+    "maxHP": 25600,
+    "investigationXP": 0,
+    "biggestEncounter": 0,
+    "smallestEncounter": 0,
+    "nbHunted": 0,
+    "investigationLvl": 0
+  }
+}

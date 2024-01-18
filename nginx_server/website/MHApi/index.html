@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Template 1</title>
+<meta name="description" content="A description of your website">
+<meta name="keywords" content="keyword1, keyword2, keyword3">
+<link href="css/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<div id="wrapper"> 
+
+  <div id="header"> 
+
+    <div class="top_banner">
+      <h1>API Monster Hunter</h1>
+      <p>DAI is so cool :-3</p>
+    </div>
+ 
+  </div>
+
+  <div id="page_content">
+
+
+
+    <div class="left_side_bar"> 
+
+
+      
+      <div class="col_1">
+        <h1>About us</h1>
+        <div class="box">
+          <p>This is a super cool website.</p>
+          <br>
+          <p>Did you know that monster hunter is cool ?!</p>
+        </div>
+      </div>
+
+
+    </div>
+
+    <div class="right_section">
+      <div class="common_content">
+        <h2>List of the monsters from the API : </h2>
+        <div id="monsters_list"></div>
+        <hr>
+        <h1>Monster API Client</h1>
+        <p> The requested monster : </p>
+        <br>
+        <div id="monster"></div>
+        <br>
+
+        <label for="id">Monster ID:</label>
+        <input type="text" id="id">
+        <button onclick="getById()">Get Monster by ID</button>
+        <br>
+        <br>
+        <label for="id">Create a new monster :</label><br>
+        <br>
+        <input type="text" id="monster-name" placeholder="Name"><br>
+        <br>
+        <textarea id="monster-descr" placeholder="Description"></textarea><br>
+        <p>Select the monster's species</p>
+        <select id="monster-species">
+          <option value="BIRD_WYVERN">Bird Wyvern</option>
+          <option value="FLYING_WYVERN">Flying Wyvern</option>
+          <option value="PISCINE_WYVERN">Piscine Wyvern</option>
+          <option value="CARAPACEON">Carapaceon</option>
+          <option value="LEVIATHAN">Leviathan</option>
+          <option value="FANGED_BEAST">Fanged Beast</option>
+          <option value="BRUTE_WYVERN">Brute Wyvern</option>
+          <option value="FANGED_WYVERN">Fanged Wyvern</option>
+          <option value="ELDER_DRAGON">Elder Dragon</option>
+          <option value="NEOPTERON">Neopteron</option>
+          <option value="WINGDRAKE">Wingdrake</option>
+          <option value="LYNIAN">Lynian</option>
+          <option value="HERBIVORE">Herbivore</option>
+          <option value="NEITHER">Neither</option>
+        </select><br>
+        <p>Select the monster's main element</p>
+        <select id="monster-element">
+          <option value="FIRE">Fire</option>
+          <option value="WATER">Water</option>
+          <option value="THUNDER">Thunder</option>
+          <option value="ICE">Ice</option>
+          <option value="DRAGON">Dragon</option>
+          <option value="STUN">Stun</option>
+        </select><br>
+        <p>Select the monster's main weakness</p>
+        <select id="weakness-type">
+          <option value="FIRE">Fire</option>
+          <option value="WATER">Water</option>
+          <option value="THUNDER">Thunder</option>
+          <option value="ICE">Ice</option>
+          <option value="DRAGON">Dragon</option>
+          <option value="STUN">Stun</option>
+        </select>
+        <input type="number" id="weakness-level" placeholder="Weakness Level">
+        <br>
+        <!-- Input for resistances -->
+        <p>Select the monster's main resistance</p>
+        <select id="resistance-type">
+          <option value="FIRE">Fire</option>
+          <option value="WATER">Water</option>
+          <option value="THUNDER">Thunder</option>
+          <option value="ICE">Ice</option>
+          <option value="DRAGON">Dragon</option>
+          <option value="STUN">Stun</option>
+        </select>
+        <input type="number" id="resistance-level" placeholder="Resistance Level">
+        <br>
+        <br>
+        <input type="number" id="monster-maxHealth" placeholder="Max health">
+        <br>
+        <br>
+        <button onclick="createMonster()">Create Monster</button>
+        <div id="monsterCreateStatus"></div>
+      </div>
+    </div>
+
+        <br>
+
+    <div class="clear"></div>
+
+    <div id="footer">Made by your graceful students - Edwin Haeffner and Arthur Junod</a><br>
+    
+    </div>
+	
+  </div>
+
+</div>
+<script>
+
+  function fetchAllMonsters() {
+    fetch('/api/monsters')
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to fetch monsters');
+              }
+              return response.json();
+            })
+            .then(monsters => {
+              const monstersDiv = document.getElementById('monsters_list');
+              monstersDiv.innerHTML = ''; // Clear existing content
+              for (const id in monsters) {
+                const monster = monsters[id];
+                const monsterElement = document.createElement('div');
+                monsterElement.innerHTML = `<h3>${monster.name}</h3>
+                                    <p>${monster.description}</p>`;
+                monstersDiv.appendChild(monsterElement);
+              }
+            })
+            .catch(error => {
+              console.error(error);
+            });
+  }
+  function getById() {
+    const id = document.getElementById('id').value;
+    fetch(`/api/monsters/${id}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Monster not found');
+              }
+              return response.json();
+            })
+            .then(monster => {
+              const monsterDiv = document.getElementById('monster');
+              monsterDiv.innerHTML = `<h3>${monster.name}</h3>
+                              <p>${monster.description}</p>
+                              <p>Species: ${monster.species}</p>
+                              <p>Element: ${monster.element}</p>`;
+            })
+            .catch(error => {
+              console.error(error);
+              const monsterDiv = document.getElementById('monster');
+              monsterDiv.innerHTML = `<p>Monster not found with ID: ${id}</p>`;
+            });
+  }
+
+
+  function createMonster() {
+    const name = document.getElementById('monster-name').value;
+    const description = document.getElementById('monster-descr').value; // Corrected ID
+    const species = document.getElementById('monster-species').value;
+    const element = document.getElementById('monster-element').value;
+    const maxHealth = parseInt(document.getElementById('monster-maxHealth').value);
+    const weaknessType = document.getElementById('weakness-type').value;
+    const weaknessLevel = parseInt(document.getElementById('weakness-level').value);
+    const resistanceType = document.getElementById('resistance-type').value;
+    const resistanceLevel = parseInt(document.getElementById('resistance-level').value);
+
+    const monsterCreateStatus = document.getElementById('monsterCreateStatus');
+
+    const monster = {
+      name: name,
+      description: description,
+      species: species,
+      element: element,
+      weakness: {
+        [weaknessType]: weaknessLevel
+      },
+      resistance: {
+        [resistanceType]: resistanceLevel
+      },
+      maxHP: maxHealth,
+      investigationXP: 0,
+      biggestEncounter: 0,
+      smallestEncounter: 0,
+      nbHunted: 0,
+      investigationLvl: 0
+    };
+
+    fetch('/api/monsters', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(monster)
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to create monster');
+              }
+              return response.json();
+            })
+            .then(newMonster => {
+              console.log('Monster created successfully', newMonster);
+              monsterCreateStatus.innerHTML = 'Monster created successfully';
+
+              // Clear the input fields
+              document.getElementById('monster-name').value = '';
+              document.getElementById('monster-descr').value = '';
+              document.getElementById('monster-species').value = 'BIRD_WYVERN';
+              document.getElementById('monster-element').value = 'FIRE';
+              document.getElementById('monster-maxHealth').value = '';
+            })
+            .catch(error => {
+              console.error(error);
+              monsterCreateStatus.innerHTML = error.message;
+            });
+  }
+
+
+
+  document.addEventListener('DOMContentLoaded', fetchAllMonsters);
+</script>
+</body></html>
