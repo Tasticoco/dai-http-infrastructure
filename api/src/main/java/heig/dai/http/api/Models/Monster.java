@@ -40,15 +40,10 @@ public class Monster {
         this.nbHunted = nbHunted;
     }
 
-
-    public int getInvestigationLvl() {
-        return (int) Math.floor(Math.sqrt(investigationXP));
-    }
-
-    public void setInvestigationLvl(int lvl) {
-        investigationXP = (int) Math.pow(lvl, 2);
-    }
-
+    /**
+     * Update the stats of the monster when hunted
+     * @param size size of the monster hunted
+     */
     public void updateStats(int size) {
         if (size > biggestEncounter) {
             biggestEncounter = size;

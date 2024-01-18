@@ -10,9 +10,26 @@ In this project, we will create a HTTP infrastructure using Docker and NGinx. We
 The theme of this project is the franchise Monster Hunter and we'll use our API to manage monsters. Check the API section for more information
 about the operations we can do on monsters.
 
+## How to use
+
+First you will have to launch 
+
+```sh
+mvn clean package
+```
+in the api folder to create the .jar used in the Dockerfile.
+
+Then you can launch
+```sh
+docker compose build
+#and then
+docker compose up -d
+```
+in the main folder to launch the docker compose and all the services.
+
 ## Documentation
 
-All sections were made just after the step asking to make it was finished if you want to see the state of every sections at the end of the lab go to the ***Release*** section.
+All sections were made just after the step asking to make it was finished if you want to see the state of some sections at the end of the lab go to the [Release](#release) section.
 
 ### NGinx configuration
 
@@ -33,7 +50,6 @@ server {
         try_files $uri $uri/ =404; # if the file isn't found, return 404
     }
 }
-
 ```
 
 ### Docker compose file
@@ -78,7 +94,7 @@ All paths start with http://localhost:7000.
 | PUT    | /monsters/{id}/hunted   | Update the stats of a monster when hunted | HTTP 200 OK if hunted or HTTP 404 if {id} not found                                           |
 | DELETE | /monsters/{id}          | Delete a monster                          | HTTP 204 if deleted or HTTP 404 if {id} not found                                             |
 
-Json response example : 
+##### Json response example
 
 Here from GET /monsters
 ```json
@@ -116,6 +132,8 @@ Here from GET /monsters/{id}/weakness
 "THUNDER": 2
 }
 ```
+
+Finally you can find a [Bruno](https://www.usebruno.com/) collection under the folder `MONSTER_TEST` that tests the different HTTP requests.
 
 ### Traeffik 
 
@@ -255,7 +273,9 @@ And now we can access our API and our website with HTTPS !
 
 ### Management UI
 
-We added Portainer to our docker compose. Portainer is a webapp that allow us to manipulate our containers from its UI.
+We added [Portainer](https://github.com/portainer/portainer) to our docker compose. 
+
+Portainer is a webapp that allow us to manipulate our containers from its UI.
 
 ```yml
 version: '3'
@@ -287,11 +307,141 @@ and display the monsters in the memory directly on the page. It can also add a m
 lost when the container is stopped. 
 - Finally, we can search and show a monster by its id.
 
+### Release
 
+In this section we will comment the final state of some files.
 
+#### Nginx
 
+##### Dockerfile nginx
 
+```Dockerfile
+FROM nginx:stable
 
+# Copy the default.conf file to the container
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Create a volume for the website directory
+VOLUME /var/www/html
 
+# Copy the website files to the container
+COPY  website/MHApi /var/www/html
 
+# Expose port 80
+EXPOSE 80
+```
+
+##### Configuration file nginx
+
+```nginx
+server {
+    # Port of nginx
+    listen 80;
+    # Name of the server of our website
+    server_name monsterhunterctropbien.ch;
+    # Root files of our website
+    root /var/www/html;
+
+    # File to charge for path "/"
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+```
+
+#### API
+
+##### Dockerfile API
+
+```Dockerfile
+# The image on which we build the api
+FROM eclipse-temurin:17-alpine
+COPY target/api-monsters.jar /api-monsters.jar
+# This is the port that your javalin application will listen on
+EXPOSE 7000
+ENTRYPOINT ["java", "-jar", "/api-monsters.jar"]
+```
+
+##### Maven pom API
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>api</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <!--Simple logging for API-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        <!--Allow us to use javalin with Maven-->
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin</artifactId>
+            <version>5.6.3</version>
+        </dependency>
+        <!--Library to transfrom Context into JSON-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <!--Final name of our .jar API-->
+        <finalName>
+            api-monsters
+        </finalName>
+        <!--This block was found in a tutorial on-->
+        <!--https://javalin.io/tutorials/docker-->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <transformers>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>heig.dai.http.api.Main</mainClass>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
