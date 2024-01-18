@@ -11,6 +11,3 @@ COPY  website/MHApi /var/www/html
 
 # Expose port 80
 EXPOSE 80
-
-## Run the Nginx service
-#CMD ["nginx", "-g", "daemon off;"]

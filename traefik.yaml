@@ -9,7 +9,6 @@ entryPoints:
   https:
     address: ":443"
 
-# For some reason, IntelliJ is telling us that this is prohibited...
 tls:
   certificates:
     - certFile: "/etc/traefik/certificates/cert.pem"

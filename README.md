@@ -1,4 +1,4 @@
-# HTTP Infrastucture
+# HTTP Infrastructure
 ___
 >### Authors
 >Arthur Junod & Edwin Häffner
@@ -10,13 +10,32 @@ In this project, we will create a HTTP infrastructure using Docker and NGinx. We
 The theme of this project is the franchise Monster Hunter and we'll use our API to manage monsters. Check the API section for more information
 about the operations we can do on monsters.
 
+## How to use
+
+First you will have to launch 
+
+```sh
+mvn clean package
+```
+in the api folder to create the .jar used in the Dockerfile.
+
+Then you can launch
+```sh
+docker compose build
+#and then
+docker compose up -d
+```
+in the main folder to launch the docker compose and all the services.
+
 ## Documentation
+
+All sections were made just after the step asking to make it was finished if you want to see the state of some sections at the end of the lab go to the [Release](#release) section.
 
 ### NGinx configuration
 
 Here is our configuration file for nginx, it is simply named 'nginx.conf' : 
 
-```nginx configuration
+```nginx
 # Our incredible nginx configuration file
 
 # This is a http server
@@ -31,24 +50,27 @@ server {
         try_files $uri $uri/ =404; # if the file isn't found, return 404
     }
 }
-
 ```
 
 ### Docker compose file
 
 Here is our docker compose file, it is simply named 'docker-compose.yml' :
 
-```docker-compose
+```yml
 version: '3.8'
-
+#The services we want to host in our docker-compose (here nginx)
 services:
   nginx:
+    # The position of the DockerFile we have to build to get nginx
     build:
       context: .
       dockerfile: Dockerfile
+    # The image we base our Docker service on
     image: nginx:stable
+    # The ports we expose outside:inside our docker
     ports:
       - "8080:80"
+    # We mount the config file of nginx and the html of the website in our docker volumes
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./website/troweld-html:/var/www/html
@@ -59,99 +81,49 @@ services:
 
 #### Monster API
 
+All paths start with http://localhost:7000.
 
-#### GET /monsters
+| HTTP   | Path                    | Do                                        | Response                                                                                      |
+|--------|-------------------------|-------------------------------------------|-----------------------------------------------------------------------------------------------|
+| GET    | /monsters               | Display all monsters                      | A json of all monsters                                                                        |
+| GET    | /monsters/{id}          | Display a given monster                   | A json of the monster we choose with the parameter {id} or HTTP 404 if not found              |
+| GET    | /monsters/name/{name}   | Display a given monster                   | A json of the monster matching the name from param {name} or HTTP 404 if not found            |
+| GET    | /monsters/{id}/weakness | Display the weaknesses of a monster       | A json containing all the weaknesses of the monster matching {id} or HTTP 404 if not found    |
+| POST   | /monsters               | Create a new monster                      | HTTP 200 OK if created or ERROR SERVER 500 if the datas given are not valid                   |
+| PUT    | /monsters/{id}          | Replace a monster or update it            | HTTP 200 OK if changed or HTTP 404 if {id} not found or ERROR SERVER 500 if json not matching |
+| PUT    | /monsters/{id}/hunted   | Update the stats of a monster when hunted | HTTP 200 OK if hunted or HTTP 404 if {id} not found                                           |
+| DELETE | /monsters/{id}          | Delete a monster                          | HTTP 204 if deleted or HTTP 404 if {id} not found                                             |
 
-Return a list of all monsters.
-Parameters: None
+##### Json response example
 
-Response example : 
-
+Here from GET /monsters
 ```json
-[
-  {
-    "{id}": {
-      "name": "Barioth",
-      "description": "The snow-white flying wyvern with huge tusks found in the frozen tundra...",
-      "species": "FLYING_WYVERN",
-      "element": "ICE",
-      "weakness": {"FIRE": 3, "THUNDER": 2},
-      "resistance": {"WATER": 4, "ICE": 4, "DRAGON": 1},
-      "maxHP": 19200,
-      // ... other attributes
-    }
+{
+  "0": {
+    "name": "Barioth",
+    "description": "The snow-white flying wyvern with huge tusks found in the frozen tundra. It uses its forelegs and tail to traverse ice with ease.",
+    "species": "FLYING_WYVERN",
+    "element": "ICE",
+    "weakness": {
+      "THUNDER": 2,
+      "FIRE": 3
+    },
+    "resistance": {
+      "ICE": 4,
+      "WATER": 4,
+      "DRAGON": 1
+    },
+    "maxHP": 19200,
+    "investigationXP": 0,
+    "biggestEncounter": 0,
+    "smallestEncounter": 0,
+    "nbHunted": 0,
+    "investigationLvl": 0
   }
-]
+}
 ```
 
-#### GET api/monsters/{id}
-
-Fetches a monster by its ID.
-
-Parameters:
-
-id - The ID of the monster.
-
-Response is similar to getAllMonsters.
-
-#### GET api/monsters/name/{name}
-
-Fetches a monster by its name.
-
-Parameters:
-
-name - The name of the monster. (case insensitive)
-
-Response:
-Same as GET /monsters/{id}
-
-
-#### DELETE api/monsters/{id}
-
-
-Deletes a monster by its ID.
-
-Parameters:
-
-id - The ID of the monster.
-
-Response:
-HTTP 204 No Content upon successful deletion.
-
-
-#### PUT api/monsters/{id}
-
-Updates a monster by its ID.
-
-Parameters:
-
-id - The ID of the monster.
-
-Request Body: JSON representation of the monster.
-
-Response:
-HTTP 200 OK upon successful update.
-
-
-#### POST api/monsters
-
-Creates a new monster.
-
-Request Body: JSON representation of the monster.
-
-Response:
-HTTP 201 Created upon successful creation.
-
-
-#### GET api/monsters/{id}/weakness
-
-Fetches the weaknesses of a monster by its ID.
-
-Parameters:
-
-id - The ID of the monster.
-
-Response:
+Here from GET /monsters/{id}/weakness
 
 ```json
 
@@ -161,32 +133,24 @@ Response:
 }
 ```
 
-#### POST api/monsters/{id}/hunted
-
-Updates the stats of a monster by its ID.
-
-Parameters:
-
-id - The ID of the monster.
-size - The new size of the monster.
-
-Response:
-HTTP 200 OK upon successful update.
+Finally you can find a [Bruno](https://www.usebruno.com/) collection under the folder `MONSTER_TEST` that tests the different HTTP requests.
 
 ### Traeffik 
 
 Here is now our updated `docker-compose.yml` file : 
 
-```docker-compose
+```yml
 version: '3'
+# Our api service
 services:
   api:
     build: ./api
-
+    # We expose the port 7000 to communicate with traeffik
     expose:
       - "7000"
     labels:
       - "traefik.enable=true"
+      # Allow us to access our api through http://localhost/api
       - "traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)"
 
   nginx:
@@ -198,54 +162,25 @@ services:
       - ./nginx_server/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./nginx_server/website/troweld-html:/var/www/html
     labels:
+      # Allow us to access the static web server http://localhost
       - "traefik.http.routers.nginx.rule=Host(`localhost`)"
 
 
+  # The reverse proxy set up with traeffik
   reverse-proxy:
     image: traefik:v2.10
+    # Command arguments configure Traefik to use Docker as the provider and enable the dashboard with insecure access.
     command: --providers.docker
              --api.dashboard=true
              --api.insecure=true
+    # Ports of the proxy and then the dashboard
     ports:
       - "80:80"
       - "8080:8080"
+    # Mounts the Docker socket to allow Traefik to listen to the Docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
-
-#### Explanation of the Configuration:
-
-
-
-###### API Service:
-
-- Built from a Dockerfile located in ./api.
-
-- Exposes port 7000 within the Docker network (not mapped to the host so we can only access it with the Traefik configuration).
-
-- Two Traefik labels are set up to define router rules for this service. It will be accessible through localhost under the /api path prefix.
-
-
-###### Nginx Service:
-
-- Built from a Dockerfile located in ./nginx_server.
-
-- Uses the official nginx:stable image.
-
-- Exposes port 80 within the Docker network.
-
-- Traefik label sets up a router rule for this service to be accessible through localhost. (Just like on the API, but this time, localhost/ will show the Nginx server)
-
-
-###### Reverse Proxy (Traefik):
-
-- Uses the traefik:v2.10 image.
-
-- Command arguments configure Traefik to use Docker as the provider and enable the dashboard with insecure access.
-
-- Maps port 80 on the host to port 80 on the container and port 8080 on the host to Traefik's dashboard port 8080 on the container.
-
-- Mounts the Docker socket to allow Traefik to listen to the Docker
 
 #### Why a Reverse Proxy is Useful to Improve the Security of the Infrastructure:
 
@@ -266,7 +201,7 @@ lab, we don't think it's very useful to make it secure as we only launch this do
 ### Scalability :
 
 By adding :
-```dockerfile
+```yml
     deploy:
       replicas: 2
 ```
@@ -280,7 +215,7 @@ We will get three instances of the api service instead of two.
 ### Sticky Session :
 
 By adding :
-```dockerfile
+```yml
       - "traefik.http.services.api.loadbalancer.sticky.cookie=true"
       - "traefik.http.services.api.loadbalancer.sticky.cookie.name=monsterious_cookie"
 ```
@@ -297,17 +232,17 @@ We generated the key with this command :
 `openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=Vaud/L=YverdonLesBains/O=HEIGVD/OU=TIC/CN=DAIhttpInfrastructurMonsterHunterAPI"`
 
 We then added the following lines to our `docker-compose.yml` file under the `nginx` and `api` service : 
-```yaml
+```yml
       - "traefik.http.routers.api.entrypoints=https"
       - "traefik.http.routers.api.tls=true"
 ```
 And we also exposed the port 443 to be able to access the https service :
-```yaml
+```yml
     ports:
       - "443:443"
 ```
 
-We finally added a new file, `traefik.yml` to our project with the following content : 
+We finally added a new file, `traefik.yaml` to our project with the following content : 
 ```yaml
 # traefik.yaml
 
@@ -338,18 +273,22 @@ And now we can access our API and our website with HTTPS !
 
 ### Management UI
 
-We added Portainer to the docker compose. Which is a webapp that allow us to manipulate our containers from its UI.
+We added [Portainer](https://github.com/portainer/portainer) to our docker compose. 
 
-```docker-compose
+Portainer is a webapp that allow us to manipulate our containers from its UI.
+
+```yml
 version: '3'
 services:
 
-//... other services
+#... other services
 
   portainer:
     image: portainer/portainer-ce
+    # Ports of the dashboard
     ports:
       - "9443:9443"
+    # Volumes to listen to docker and store the data (p.ex. admin user)
     volumes:
       - data:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -358,21 +297,151 @@ services:
 volumes:
   data:
 ```
-Then from Portainer you can connect to the local docker environment to access all the containers, images, etc. 
-of your local docker environment. You can access the dashboard with http://localhost:9443. You may have to create
-your admin user the first time you launch Portainer or if you tear down the volumes.
+Then from Portainer you can connect to your local docker environment to access all the containers, images, etc. You can access the dashboard trough http://localhost:9443. You may have to create your admin user the first time you launch Portainer or if you tear down the volumes.
 
 ### Integration of the API in the static website
 
-In `nginx_server/website/MHApi`, we've made a simple HTML page that uses JavaScript to fetch the API
-and display the monsters in the memory directly on the page. It can also add a monster to the API. As we don't have a database, the data will be 
-lost when the container is stopped. Finally, we can search and show a monster by its id.
+- In `nginx_server/website/MHApi`, we've made a simple HTML page that uses JavaScript to fetch the API
+and display the monsters in the memory directly on the page. It can also add a monster to the API. 
+- As we don't have a database, the data will be 
+lost when the container is stopped. 
+- Finally, we can search and show a monster by its id.
 
+### Release
 
+In this section we will comment the final state of some files.
 
+#### Nginx
 
+##### Dockerfile nginx
 
+```Dockerfile
+FROM nginx:stable
 
+# Copy the default.conf file to the container
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Create a volume for the website directory
+VOLUME /var/www/html
 
+# Copy the website files to the container
+COPY  website/MHApi /var/www/html
 
+# Expose port 80
+EXPOSE 80
+```
+
+##### Configuration file nginx
+
+```nginx
+server {
+    # Port of nginx
+    listen 80;
+    # Name of the server of our website
+    server_name monsterhunterctropbien.ch;
+    # Root files of our website
+    root /var/www/html;
+
+    # File to charge for path "/"
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+```
+
+#### API
+
+##### Dockerfile API
+
+```Dockerfile
+# The image on which we build the api
+FROM eclipse-temurin:17-alpine
+COPY target/api-monsters.jar /api-monsters.jar
+# This is the port that your javalin application will listen on
+EXPOSE 7000
+ENTRYPOINT ["java", "-jar", "/api-monsters.jar"]
+```
+
+##### Maven pom API
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>api</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <!--Simple logging for API-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        <!--Allow us to use javalin with Maven-->
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin</artifactId>
+            <version>5.6.3</version>
+        </dependency>
+        <!--Library to transfrom Context into JSON-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <!--Final name of our .jar API-->
+        <finalName>
+            api-monsters
+        </finalName>
+        <!--This block was found in a tutorial on-->
+        <!--https://javalin.io/tutorials/docker-->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <transformers>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>heig.dai.http.api.Main</mainClass>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
